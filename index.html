@@ -27,6 +27,9 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
+      font-weight: 450;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     /* ===== Top bar ===== */
@@ -57,17 +60,16 @@
       color:inherit;
     }
 
-    /* ✅ LOGO MÁS GRANDE */
     .logo{
-    width:73px;           /* 30% más grande */
-    height:73px;          /* 30% más grande */
-    border-radius: 16px;
-    background: none;     /* ❌ quitamos fondo */
-    box-shadow: none;     /* ❌ quitamos delineado/sombra */
-    display:grid;
-    place-items:center;
-    overflow:hidden;
-    flex: 0 0 auto;
+      width:73px;
+      height:73px;
+      border-radius: 16px;
+      background: none;
+      box-shadow: none;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      flex: 0 0 auto;
     }
     .logo img{
       width:100%;
@@ -79,8 +81,8 @@
     .brand h1{
       font-size: 15px;
       margin:0;
-      letter-spacing:.2px;
-      font-weight: 800;
+      letter-spacing:.25px;
+      font-weight: 760;
       text-transform: uppercase;
     }
 
@@ -88,7 +90,7 @@
       display:block;
       font-size:12px;
       color: var(--muted);
-      font-weight:600;
+      font-weight: 520;
       margin-top:2px;
     }
 
@@ -112,7 +114,6 @@
       box-shadow: 0 4px 14px rgba(16,24,40,.05);
     }
 
-    /* ✅ ÍCONO PNG EN VEZ DE EMOJI */
     .search-icon{
       width:18px;
       height:18px;
@@ -129,6 +130,7 @@
       outline:none;
       font-size: 14px;
       color: var(--text);
+      font-weight: 500;
     }
 
     /* ===== Hero ===== */
@@ -146,11 +148,12 @@
       margin:0;
       font-size: 26px;
       letter-spacing:-.6px;
+      font-weight: 760;
     }
     .hero p{
       margin:6px 0 0;
       color: var(--muted);
-      font-weight:600;
+      font-weight: 520;
     }
 
     .hero-right{
@@ -163,7 +166,7 @@
 
     .chip{
       font-size:12px;
-      font-weight:800;
+      font-weight: 650;
       border: 1px solid var(--line);
       background:#fff;
       border-radius: 999px;
@@ -261,17 +264,17 @@
       margin:0;
       font-size: 14px;
       line-height: 1.25;
-      letter-spacing:.1px;
-      font-weight: 850;
+      letter-spacing:.12px;
+      font-weight: 720;
       text-transform: uppercase;
     }
 
-    /* ✅ PRECIOS EN NEGRO */
     .precio{
-      color: #000;         /* antes var(--accent2) */
-      font-weight: 900;
+      color: #000;
+      font-weight: 780;
       white-space:nowrap;
       font-size: 14px;
+      letter-spacing: .1px;
     }
 
     .meta{
@@ -283,12 +286,38 @@
 
     .tag{
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 650;
       color: #111;
       background: #f2f4f7;
       border: 1px solid var(--line);
       border-radius: 999px;
       padding: 6px 8px;
+    }
+
+    .tag-size{
+      background:#fff;
+      border: 1px dashed var(--line);
+      font-weight: 650;
+    }
+
+    .tag-muted{
+      opacity:.78;
+      font-weight: 600;
+    }
+
+    /* ✅ Bloque de tallas en segunda línea, pero tallas en fila */
+    .sizes-wrap{
+      display:flex;
+      gap:8px;
+      flex-basis:100%;
+      flex-wrap:wrap;
+    }
+
+    .hat-frac{
+      font-size: 0.75em;      /* fracción visible pero no exagerada */
+      vertical-align: 0.45em; /* en vez de "super" usamos ajuste fino */
+      margin-left: 2px;
+      font-weight: 700;
     }
 
     .actions{
@@ -301,15 +330,15 @@
       flex:1 1 auto;
       border:none;
       border-radius: 12px;
-      padding: 11px 12px;
+      padding: 8px 10px;
       cursor:pointer;
-      font-weight: 900;
-      letter-spacing:.2px;
+      font-weight: 720;
+      letter-spacing:.18px;
       transition: transform .12s ease, opacity .12s ease, box-shadow .12s ease;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap: 8px;
+      gap: 6px;
       text-decoration:none;
       user-select:none;
     }
@@ -319,6 +348,7 @@
       background: var(--accent);
       color:#fff;
       box-shadow: 0 10px 22px rgba(17,17,17,.18);
+      font-weight: 760;
     }
     .btn-primary:hover{ opacity: .95; }
 
@@ -326,6 +356,7 @@
       background:#fff;
       color:#111;
       border: 1px solid var(--line);
+      font-weight: 650;
     }
     .btn-outline:hover{ box-shadow: 0 10px 22px rgba(16,24,40,.08); transform: translateY(-1px); }
 
@@ -370,7 +401,7 @@
       gap: 10px;
       padding: 10px 12px;
       color: #fff;
-      font-weight: 800;
+      font-weight: 720;
       background: rgba(0,0,0,.25);
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
@@ -382,6 +413,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 55%;
+      font-weight: 680;
     }
 
     .lightbox-controls{
@@ -399,7 +431,7 @@
       padding: 8px 10px;
       border-radius: 999px;
       cursor:pointer;
-      font-weight: 900;
+      font-weight: 720;
       font-size: 12px;
       transition: transform .12s ease, background .12s ease;
       user-select:none;
@@ -485,7 +517,7 @@
       padding: 10px 12px 12px;
       color: rgba(255,255,255,.85);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 600;
       display:flex;
       justify-content:space-between;
       gap: 10px;
@@ -493,7 +525,7 @@
       border-top: 1px solid rgba(255,255,255,.08);
       flex-wrap: wrap;
     }
-    .lightbox-hint{ color: rgba(255,255,255,.70); font-weight: 650; }
+    .lightbox-hint{ color: rgba(255,255,255,.70); font-weight: 520; }
 
     @media (max-width: 720px){
       .tools{ width: 56vw; }
@@ -521,12 +553,7 @@
 
       <div class="tools">
         <div class="search" title="Buscar por nombre">
-          <!-- ✅ Reemplazo del emoji por PNG (cambia el link cuando quieras) -->
-          <img
-            class="search-icon"
-            src="https://lh3.googleusercontent.com/d/1Y0pPOOOGWfMnjwYuo2N7G3a3fDA1pye6"
-            alt="Buscar"
-          />
+          <img class="search-icon" src="https://lh3.googleusercontent.com/d/1Y0pPOOOGWfMnjwYuo2N7G3a3fDA1pye6" alt="Buscar" />
           <input id="searchInput" type="text" placeholder="Buscar gorras..." />
         </div>
       </div>
@@ -550,9 +577,7 @@
     <div class="catalogo" id="catalogo"></div>
 
     <div class="footer-actions">
-      <button class="btn btn-outline loadmore" id="loadMoreBtn" type="button">
-        Ver más
-      </button>
+      <button class="btn btn-outline loadmore" id="loadMoreBtn" type="button">Ver más</button>
     </div>
   </div>
 
@@ -595,15 +620,12 @@
 
     // WhatsApp
     const WHATSAPP_NUMBER = "573124124008";
-    const whatsappLink = (text) =>
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    const whatsappLink = (text) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
-    // Drive ID -> imagen
     function idToDriveImage(id) {
       return `https://lh3.googleusercontent.com/d/${id}`;
     }
 
-    // Formatea precio si viene como número (opcional)
     function formatPrice(value) {
       if (!value) return "";
       const raw = String(value).trim();
@@ -611,6 +633,70 @@
       const num = Number(raw.replaceAll(".", "").replaceAll(",", "."));
       if (!Number.isFinite(num)) return raw;
       return num.toLocaleString("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
+    }
+
+    // ✅ Muestra fracción bonita desde Excel: 71/4 -> 7¼ (en superscript)
+    function formatHatSize(size){
+      if(!size) return "";
+      size = String(size).trim();
+
+      const match = size.match(/^(\d+)([1-7]\/[248])$/);
+      if(!match) return size;
+
+      const entero = match[1];
+      const fraccion = match[2];
+
+      const mapa = {
+        "1/4": "¼",
+        "1/2": "½",
+        "3/4": "¾",
+        "1/8": "⅛",
+        "3/8": "⅜",
+        "5/8": "⅝",
+        "7/8": "⅞"
+      };
+
+      return `${entero}<sup class="hat-frac">${mapa[fraccion] || fraccion}</sup>`;
+    }
+
+    // ✅ Parse tallas sin romper el "/" (Excel: 71/4|81/4)
+    function parseTallasDisponibles(raw) {
+      if (raw === undefined || raw === null) return [];
+      let s = String(raw).trim();
+      if (!s) return [];
+
+      // JSON array / object
+      if ((s.startsWith("[") && s.endsWith("]")) || (s.startsWith("{") && s.endsWith("}"))) {
+        try {
+          const obj = JSON.parse(s);
+          if (Array.isArray(obj)) return obj.map(x => String(x).trim()).filter(Boolean);
+          return Object.entries(obj)
+            .filter(([_, v]) => {
+              const vv = String(v).trim().toLowerCase();
+              return v === true || v === 1 || vv === "1" || vv === "true" || vv === "si" || vv === "sí";
+            })
+            .map(([k]) => String(k).trim())
+            .filter(Boolean);
+        } catch (_) {}
+      }
+
+      // ✅ Split SOLO por | , ; o salto de línea (NO por "/")
+      const parts = s.split(/[\|,;\n]+/).map(x => x.trim()).filter(Boolean);
+      const tokens = parts.length ? parts : s.split(/\s+/).map(x => x.trim()).filter(Boolean);
+
+      // size:state -> "71/4:1"
+      if (tokens.some(t => t.includes(":"))) {
+        return tokens
+          .map(t => t.split(":").map(x => x.trim()))
+          .filter(([size, state]) => size && state !== undefined)
+          .filter(([_, state]) => {
+            const st = String(state).trim().toLowerCase();
+            return st === "1" || st === "true" || st === "si" || st === "sí";
+          })
+          .map(([size]) => size);
+      }
+
+      return tokens;
     }
 
     let productos = [];
@@ -624,7 +710,7 @@
     const searchInput = document.getElementById("searchInput");
     const countChip = document.getElementById("countChip");
 
-    // ===== LIGHTBOX (scroll + zoom + drag) =====
+    // ===== LIGHTBOX =====
     const lightbox = document.getElementById("lightbox");
     const lightboxImg = document.getElementById("lightboxImg");
     const lightboxTitle = document.getElementById("lightboxTitle");
@@ -642,13 +728,11 @@
     let lbIndex = 0;
     let lbName = "";
 
-    // zoom/pan state
     let scale = 1;
     const minScale = 1;
     const maxScale = 6;
     let tx = 0, ty = 0;
 
-    // drag state
     let dragging = false;
     let startX = 0, startY = 0;
     let startTx = 0, startTy = 0;
@@ -780,15 +864,19 @@
     fetch(JSON_URL)
       .then(res => res.json())
       .then(data => {
-        productos = data.map(p => ({
-          nombre: (p.nombre || "Sin nombre").trim(),
-          precio: formatPrice(p.precio || ""),
-          imagenes: (p.imagenes || "")
-            .split("|")
-            .map(x => x.trim())
-            .filter(x => x.length > 0)
-            .map(id => idToDriveImage(id)),
-        }));
+        productos = data.map(p => {
+          const tallasDisponibles = parseTallasDisponibles(p.tallas);
+          return {
+            nombre: (p.nombre || "Sin nombre").trim(),
+            precio: formatPrice(p.precio || ""),
+            tallas: tallasDisponibles,
+            imagenes: (p.imagenes || "")
+              .split("|")
+              .map(x => x.trim())
+              .filter(x => x.length > 0)
+              .map(id => idToDriveImage(id)),
+          };
+        });
 
         filtered = [...productos];
         updateCount();
@@ -897,12 +985,33 @@
         meta.appendChild(t1);
         meta.appendChild(t2);
 
+        // ✅ Tallaje (sin "Tallas:")
+        if (p.tallas && p.tallas.length) {
+          const sizesWrap = document.createElement("div");
+          sizesWrap.className = "sizes-wrap";
+
+          p.tallas.forEach(size => {
+            const el = document.createElement("span");
+            el.className = "tag tag-size";
+            el.innerHTML = formatHatSize(String(size).trim());
+            sizesWrap.appendChild(el);
+          });
+
+          meta.appendChild(sizesWrap);
+        } else {
+          const noSizes = document.createElement("span");
+          noSizes.className = "tag tag-muted";
+          noSizes.textContent = "Sin tallas disponibles";
+          meta.appendChild(noSizes);
+        }
+
         const actions = document.createElement("div");
         actions.className = "actions";
 
         const buy = document.createElement("a");
         buy.className = "btn btn-primary";
-        buy.href = whatsappLink(`Hola! Quiero comprar esta gorra:\n\n• ${p.nombre}\n• Precio: ${p.precio || "N/A"}\n\n¿Me confirmas disponibilidad y envío?`);
+        const tallasTxt = (p.tallas && p.tallas.length) ? p.tallas.join(", ") : "N/A";
+        buy.href = whatsappLink(`Hola! Quiero comprar esta gorra:\n\n• ${p.nombre}\n• Precio: ${p.precio || "N/A"}\n• Tallas disponibles: ${tallasTxt}\n\n¿Me confirmas disponibilidad y envío?`);
         buy.target = "_blank";
         buy.rel = "noopener";
         buy.textContent = "Comprar por WhatsApp";
@@ -912,7 +1021,7 @@
         share.type = "button";
         share.textContent = "Copiar info";
         share.onclick = async () => {
-          const text = `${p.nombre} - ${p.precio || ""}`.trim();
+          const text = `${p.nombre} - ${p.precio || ""}${p.tallas?.length ? ` - Tallas: ${p.tallas.join(", ")}` : ""}`.trim();
           try{
             await navigator.clipboard.writeText(text);
             share.textContent = "Copiado ✅";
