@@ -224,28 +224,35 @@
     }
     .carousel img.active{ display:block; }
 
-    .carousel button{
-      position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      background: rgba(17,17,17,.55);
-      color:#fff;
-      border:none;
-      width: 36px;
-      height: 36px;
-      cursor:pointer;
-      border-radius: 999px;
-      z-index:2;
-      display:grid;
-      place-items:center;
-      transition: background .12s ease, transform .12s ease;
-    }
-    .carousel button:hover{
-      background: rgba(17,17,17,.75);
-      transform: translateY(-50%) scale(1.03);
-    }
-    .prev{ left: 10px; }
-    .next{ right: 10px; }
+.carousel button{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background: rgba(0,0,0,.25);   /* más transparente */
+  color:#fff;
+  border:none;
+  width: 26px;                   /* más pequeño */
+  height: 26px;
+  cursor:pointer;
+  border-radius: 999px;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  font-size: 16px;
+  opacity: 0;                    /* ocultos por defecto */
+  transition: opacity .2s ease, background .2s ease, transform .2s ease;
+}
+.carousel:hover button{
+  opacity: .85;                  /* aparecen solo al pasar el mouse */
+}
+
+.carousel button:hover{
+  background: rgba(0,0,0,.45);   /* un poquito más visible al pasar encima */
+  transform: translateY(-50%) scale(1.05);
+}
+
+.prev{ left: 6px; }
+.next{ right: 6px; }
 
     .info{
       padding: 14px 14px 16px;
