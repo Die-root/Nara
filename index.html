@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Nara Colombia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1pllXeSAeOcbq6w_h9Tuub6uYaysL77IV">
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1pllXeSAeOcbq6w_h9Tuub6uYaysL77IV">
 
   <style>
     :root{
@@ -306,7 +306,6 @@
       font-weight: 600;
     }
 
-    /* ✅ Bloque de tallas en segunda línea, pero tallas en fila */
     .sizes-wrap{
       display:flex;
       gap:8px;
@@ -315,8 +314,8 @@
     }
 
     .hat-frac{
-      font-size: 0.75em;      /* fracción visible pero no exagerada */
-      vertical-align: 0.45em; /* en vez de "super" usamos ajuste fino */
+      font-size: 0.75em;
+      vertical-align: 0.45em;
       margin-left: 2px;
       font-weight: 700;
     }
@@ -368,7 +367,7 @@
     }
     .loadmore{ min-width: 220px; }
 
-    /* ===== LIGHTBOX (scroll + zoom + drag) ===== */
+    /* ===== LIGHTBOX (centrado + nav a los lados) ===== */
     .lightbox{
       position: fixed;
       inset: 0;
@@ -455,27 +454,29 @@
     }
     .lightbox-close:hover{ background: rgba(255,255,255,.18); transform: scale(1.03); }
 
+    /* ✅ Deja espacio lateral para los botones, así no tapan la imagen */
     .lightbox-body{
       position: relative;
       flex: 1 1 auto;
-      padding: 12px;
+      padding: 12px 64px;           /* 👈 espacio a los lados */
       overflow: auto;
       overscroll-behavior: contain;
       background: rgba(0,0,0,.08);
     }
 
+    /* ✅ contenedor centrado del "recuadro" */
     .lightbox-stage{
       position: relative;
-      width: max-content;
-      height: max-content;
-      min-width: 100%;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
       display:flex;
       align-items:center;
       justify-content:center;
       padding: 10px;
+      min-height: 100%;
     }
 
+    /* ✅ la imagen SIEMPRE queda centrada en el recuadro */
     .lightbox-img{
       max-width: 100%;
       max-height: 100%;
@@ -489,9 +490,12 @@
       -webkit-user-drag:none;
       cursor: grab;
       pointer-events: auto;
+      margin: auto;
+      display:block;
     }
     .lightbox-img:active{ cursor: grabbing; }
 
+    /* ✅ Botones a los lados, pegados al borde del panel */
     .lightbox-nav{
       position:absolute;
       top:50%;
@@ -501,18 +505,18 @@
       height: 46px;
       border-radius: 999px;
       cursor:pointer;
-      background: rgba(0,0,0,.35);
+      background: rgba(0,0,0,.42);
       color:#fff;
       font-size: 22px;
       display:grid;
       place-items:center;
       transition: background .12s ease, transform .12s ease, opacity .12s ease;
-      opacity: .95;
-      z-index: 5;
+      opacity: .98;
+      z-index: 20;                  /* 👈 sobre todo */
     }
-    .lightbox-nav:hover{ background: rgba(0,0,0,.52); transform: translateY(-50%) scale(1.03); }
-    .lightbox-prev{ left: 12px; }
-    .lightbox-next{ right: 12px; }
+    .lightbox-nav:hover{ background: rgba(0,0,0,.60); transform: translateY(-50%) scale(1.03); }
+    .lightbox-prev{ left: 10px; }   /* 👈 a un lado (borde panel) */
+    .lightbox-next{ right: 10px; }  /* 👈 a un lado (borde panel) */
 
     .lightbox-footer{
       padding: 10px 12px 12px;
@@ -533,6 +537,7 @@
       .hero{ align-items:flex-start; flex-direction:column; }
       .hero-right{ justify-content:flex-start; }
       .logo{ width:52px; height:52px; border-radius: 16px; }
+      .lightbox-body{ padding: 12px 54px; } /* un poquito menos en móvil */
     }
   </style>
 </head>
@@ -636,7 +641,6 @@
       return num.toLocaleString("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
     }
 
-    // ✅ Muestra fracción bonita desde Excel: 71/4 -> 7¼ (en superscript)
     function formatHatSize(size){
       if(!size) return "";
       size = String(size).trim();
@@ -660,13 +664,11 @@
       return `${entero}<sup class="hat-frac">${mapa[fraccion] || fraccion}</sup>`;
     }
 
-    // ✅ Parse tallas sin romper el "/" (Excel: 71/4|81/4)
     function parseTallasDisponibles(raw) {
       if (raw === undefined || raw === null) return [];
       let s = String(raw).trim();
       if (!s) return [];
 
-      // JSON array / object
       if ((s.startsWith("[") && s.endsWith("]")) || (s.startsWith("{") && s.endsWith("}"))) {
         try {
           const obj = JSON.parse(s);
@@ -681,11 +683,9 @@
         } catch (_) {}
       }
 
-      // ✅ Split SOLO por | , ; o salto de línea (NO por "/")
       const parts = s.split(/[\|,;\n]+/).map(x => x.trim()).filter(Boolean);
       const tokens = parts.length ? parts : s.split(/\s+/).map(x => x.trim()).filter(Boolean);
 
-      // size:state -> "71/4:1"
       if (tokens.some(t => t.includes(":"))) {
         return tokens
           .map(t => t.split(":").map(x => x.trim()))
@@ -741,6 +741,8 @@
     function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
     function applyTransform(){
+      // ✅ si está en 1x, dejamos el translate en 0 para asegurar centrado perfecto
+      if (scale === 1){ tx = 0; ty = 0; }
       lightboxImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
       zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
     }
@@ -749,6 +751,15 @@
       scale = 1;
       tx = 0; ty = 0;
       applyTransform();
+
+      // ✅ vuelve al centro del recuadro (aunque haya scroll)
+      requestAnimationFrame(() => {
+        lightboxBody.scrollTo({
+          left: Math.max(0, (lightboxBody.scrollWidth - lightboxBody.clientWidth) / 2),
+          top: Math.max(0, (lightboxBody.scrollHeight - lightboxBody.clientHeight) / 2),
+          behavior: "instant"
+        });
+      });
     }
 
     function openLightbox(images, startIndex, productName){
@@ -785,13 +796,11 @@
       lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
       renderLightbox();
       resetTransform();
-      lightboxBody.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
     function lbNext(){
       lbIndex = (lbIndex + 1) % lbImages.length;
       renderLightbox();
       resetTransform();
-      lightboxBody.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
 
     lightboxClose.addEventListener("click", closeLightbox);
@@ -825,7 +834,6 @@
         ty -= cy * k;
       }
 
-      if (scale === 1){ tx = 0; ty = 0; }
       applyTransform();
     }
 
@@ -842,6 +850,7 @@
 
     lightboxImg.addEventListener("mousedown", (e) => {
       if (!lightbox.classList.contains("show")) return;
+      if (scale === 1) return; // ✅ en 1x no arrastrar (para mantener centrado)
       e.preventDefault();
       dragging = true;
       startX = e.clientX;
@@ -986,7 +995,6 @@
         meta.appendChild(t1);
         meta.appendChild(t2);
 
-        // ✅ Tallaje (sin "Tallas:")
         if (p.tallas && p.tallas.length) {
           const sizesWrap = document.createElement("div");
           sizesWrap.className = "sizes-wrap";
