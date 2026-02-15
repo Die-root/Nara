@@ -625,473 +625,549 @@
     </div>
   </div>
 
-  <script>
-    // 🔗 CONFIGURA TU SHEET
-    const SHEET_ID = "1zzLV5JfDDzFJb6IkmEB_yrpz0p2d7TfTD5MppYi2tnY";
-    const SHEET_NAME = "Hoja1";
-    const JSON_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+<script>
+  // 🔗 CONFIGURA TU SHEET
+  const SHEET_ID = "1zzLV5JfDDzFJb6IkmEB_yrpz0p2d7TfTD5MppYi2tnY";
+  const SHEET_NAME = "Hoja1";
+  const JSON_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
-    // WhatsApp
-    const WHATSAPP_NUMBER = "573124124008";
-    const whatsappLink = (text) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  // WhatsApp
+  const WHATSAPP_NUMBER = "573124124008";
+  const whatsappLink = (text) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
-    function idToDriveImage(id) {
-      return `https://lh3.googleusercontent.com/d/${id}`;
-    }
+  function idToDriveImage(id) {
+    return `https://lh3.googleusercontent.com/d/${id}`;
+  }
 
-    function formatPrice(value) {
-      if (!value) return "";
-      const raw = String(value).trim();
-      if (/[a-zA-Z$]/.test(raw)) return raw;
-      const num = Number(raw.replaceAll(".", "").replaceAll(",", "."));
-      if (!Number.isFinite(num)) return raw;
-      return num.toLocaleString("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
-    }
+  function formatPrice(value) {
+    if (!value) return "";
+    const raw = String(value).trim();
+    if (/[a-zA-Z$]/.test(raw)) return raw;
+    const num = Number(raw.replaceAll(".", "").replaceAll(",", "."));
+    if (!Number.isFinite(num)) return raw;
+    return num.toLocaleString("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
+  }
 
-    function formatHatSize(size){
-      if(!size) return "";
-      size = String(size).trim();
+  function formatHatSize(size){
+    if(!size) return "";
+    size = String(size).trim();
 
-      const match = size.match(/^(\d+)([1-7]\/[248])$/);
-      if(!match) return size;
+    const match = size.match(/^(\d+)([1-7]\/[248])$/);
+    if(!match) return size;
 
-      const entero = match[1];
-      const fraccion = match[2];
+    const entero = match[1];
+    const fraccion = match[2];
 
-      const mapa = {
-        "1/4": "¼",
-        "1/2": "½",
-        "3/4": "¾",
-        "1/8": "⅛",
-        "3/8": "⅜",
-        "5/8": "⅝",
-        "7/8": "⅞"
-      };
+    const mapa = {
+      "1/4": "¼",
+      "1/2": "½",
+      "3/4": "¾",
+      "1/8": "⅛",
+      "3/8": "⅜",
+      "5/8": "⅝",
+      "7/8": "⅞"
+    };
 
-      return `${entero}<sup class="hat-frac">${mapa[fraccion] || fraccion}</sup>`;
-    }
+    return `${entero}<sup class="hat-frac">${mapa[fraccion] || fraccion}</sup>`;
+  }
 
-    function parseTallasDisponibles(raw) {
-      if (raw === undefined || raw === null) return [];
-      let s = String(raw).trim();
-      if (!s) return [];
+  function parseTallasDisponibles(raw) {
+    if (raw === undefined || raw === null) return [];
+    let s = String(raw).trim();
+    if (!s) return [];
 
-      if ((s.startsWith("[") && s.endsWith("]")) || (s.startsWith("{") && s.endsWith("}"))) {
-        try {
-          const obj = JSON.parse(s);
-          if (Array.isArray(obj)) return obj.map(x => String(x).trim()).filter(Boolean);
-          return Object.entries(obj)
-            .filter(([_, v]) => {
-              const vv = String(v).trim().toLowerCase();
-              return v === true || v === 1 || vv === "1" || vv === "true" || vv === "si" || vv === "sí";
-            })
-            .map(([k]) => String(k).trim())
-            .filter(Boolean);
-        } catch (_) {}
-      }
-
-      const parts = s.split(/[\|,;\n]+/).map(x => x.trim()).filter(Boolean);
-      const tokens = parts.length ? parts : s.split(/\s+/).map(x => x.trim()).filter(Boolean);
-
-      if (tokens.some(t => t.includes(":"))) {
-        return tokens
-          .map(t => t.split(":").map(x => x.trim()))
-          .filter(([size, state]) => size && state !== undefined)
-          .filter(([_, state]) => {
-            const st = String(state).trim().toLowerCase();
-            return st === "1" || st === "true" || st === "si" || st === "sí";
+    if ((s.startsWith("[") && s.endsWith("]")) || (s.startsWith("{") && s.endsWith("}"))) {
+      try {
+        const obj = JSON.parse(s);
+        if (Array.isArray(obj)) return obj.map(x => String(x).trim()).filter(Boolean);
+        return Object.entries(obj)
+          .filter(([_, v]) => {
+            const vv = String(v).trim().toLowerCase();
+            return v === true || v === 1 || vv === "1" || vv === "true" || vv === "si" || vv === "sí";
           })
-          .map(([size]) => size);
-      }
-
-      return tokens;
+          .map(([k]) => String(k).trim())
+          .filter(Boolean);
+      } catch (_) {}
     }
 
-    let productos = [];
-    let filtered = [];
-    let index = 0;
-    const batchSize = 8;
-    let isLoading = false;
+    const parts = s.split(/[\|,;\n]+/).map(x => x.trim()).filter(Boolean);
+    const tokens = parts.length ? parts : s.split(/\s+/).map(x => x.trim()).filter(Boolean);
 
-    const contenedor = document.getElementById("catalogo");
-    const loadMoreBtn = document.getElementById("loadMoreBtn");
-    const searchInput = document.getElementById("searchInput");
-    const countChip = document.getElementById("countChip");
-
-    // ===== LIGHTBOX =====
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightboxImg");
-    const lightboxTitle = document.getElementById("lightboxTitle");
-    const lightboxCounter = document.getElementById("lightboxCounter");
-    const lightboxClose = document.getElementById("lightboxClose");
-    const lightboxPrev = document.getElementById("lightboxPrev");
-    const lightboxNext = document.getElementById("lightboxNext");
-    const lightboxBody = document.getElementById("lightboxBody");
-
-    const zoomInBtn = document.getElementById("zoomInBtn");
-    const zoomOutBtn = document.getElementById("zoomOutBtn");
-    const zoomResetBtn = document.getElementById("zoomResetBtn");
-
-    let lbImages = [];
-    let lbIndex = 0;
-    let lbName = "";
-
-    let scale = 1;
-    const minScale = 1;
-    const maxScale = 6;
-    let tx = 0, ty = 0;
-
-    let dragging = false;
-    let startX = 0, startY = 0;
-    let startTx = 0, startTy = 0;
-
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-
-    function applyTransform(){
-      // ✅ si está en 1x, dejamos el translate en 0 para asegurar centrado perfecto
-      if (scale === 1){ tx = 0; ty = 0; }
-      lightboxImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-      zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
+    if (tokens.some(t => t.includes(":"))) {
+      return tokens
+        .map(t => t.split(":").map(x => x.trim()))
+        .filter(([size, state]) => size && state !== undefined)
+        .filter(([_, state]) => {
+          const st = String(state).trim().toLowerCase();
+          return st === "1" || st === "true" || st === "si" || st === "sí";
+        })
+        .map(([size]) => size);
     }
 
-    function resetTransform(){
-      scale = 1;
-      tx = 0; ty = 0;
-      applyTransform();
+    return tokens;
+  }
 
-      // ✅ vuelve al centro del recuadro (aunque haya scroll)
-      requestAnimationFrame(() => {
-        lightboxBody.scrollTo({
-          left: Math.max(0, (lightboxBody.scrollWidth - lightboxBody.clientWidth) / 2),
-          top: Math.max(0, (lightboxBody.scrollHeight - lightboxBody.clientHeight) / 2),
-          behavior: "instant"
-        });
+  let productos = [];
+  let filtered = [];
+  let index = 0;
+  const batchSize = 8;
+  let isLoading = false;
+
+  const contenedor = document.getElementById("catalogo");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+  const searchInput = document.getElementById("searchInput");
+  const countChip = document.getElementById("countChip");
+
+  // ===== LIGHTBOX =====
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxTitle = document.getElementById("lightboxTitle");
+  const lightboxCounter = document.getElementById("lightboxCounter");
+  const lightboxClose = document.getElementById("lightboxClose");
+  const lightboxPrev = document.getElementById("lightboxPrev");
+  const lightboxNext = document.getElementById("lightboxNext");
+  const lightboxBody = document.getElementById("lightboxBody");
+
+  const zoomInBtn = document.getElementById("zoomInBtn");
+  const zoomOutBtn = document.getElementById("zoomOutBtn");
+  const zoomResetBtn = document.getElementById("zoomResetBtn");
+
+  let lbImages = [];
+  let lbIndex = 0;
+  let lbName = "";
+
+  let scale = 1;
+  const minScale = 1;
+  const maxScale = 6;
+  let tx = 0, ty = 0;
+
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let startTx = 0, startTy = 0;
+
+  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+  function applyTransform(){
+    if (scale === 1){ tx = 0; ty = 0; }
+    lightboxImg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
+  }
+
+  function resetTransform(){
+    scale = 1;
+    tx = 0; ty = 0;
+    applyTransform();
+
+    requestAnimationFrame(() => {
+      lightboxBody.scrollTo({
+        left: Math.max(0, (lightboxBody.scrollWidth - lightboxBody.clientWidth) / 2),
+        top: Math.max(0, (lightboxBody.scrollHeight - lightboxBody.clientHeight) / 2),
+        behavior: "instant"
       });
-    }
-
-    function openLightbox(images, startIndex, productName){
-      lbImages = images?.length ? images : ["https://via.placeholder.com/1200x800?text=Sin+imagen"];
-      lbIndex = Math.max(0, Math.min(startIndex || 0, lbImages.length - 1));
-      lbName = productName || "Vista previa";
-
-      lightbox.classList.add("show");
-      lightbox.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-
-      renderLightbox();
-      resetTransform();
-    }
-
-    function closeLightbox(){
-      lightbox.classList.remove("show");
-      lightbox.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-    }
-
-    function renderLightbox(){
-      const src = lbImages[lbIndex];
-      lightboxImg.src = src;
-      lightboxTitle.textContent = lbName;
-      lightboxCounter.textContent = `${lbIndex + 1} / ${lbImages.length}`;
-
-      const showNav = lbImages.length > 1;
-      lightboxPrev.style.display = showNav ? "grid" : "none";
-      lightboxNext.style.display = showNav ? "grid" : "none";
-    }
-
-    function lbPrev(){
-      lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
-      renderLightbox();
-      resetTransform();
-    }
-    function lbNext(){
-      lbIndex = (lbIndex + 1) % lbImages.length;
-      renderLightbox();
-      resetTransform();
-    }
-
-    lightboxClose.addEventListener("click", closeLightbox);
-    lightboxPrev.addEventListener("click", lbPrev);
-    lightboxNext.addEventListener("click", lbNext);
-
-    lightbox.addEventListener("click", (e) => {
-      if (e.target === lightbox) closeLightbox();
     });
+  }
 
-    window.addEventListener("keydown", (e) => {
-      if (!lightbox.classList.contains("show")) return;
-      if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowLeft") lbPrev();
-      if (e.key === "ArrowRight") lbNext();
-      if (e.key === "+" || e.key === "=") zoomBy(1.12);
-      if (e.key === "-" || e.key === "_") zoomBy(1/1.12);
-      if (e.key.toLowerCase() === "r") resetTransform();
-    });
+  function openLightbox(images, startIndex, productName){
+    lbImages = images?.length ? images : ["https://via.placeholder.com/1200x800?text=Sin+imagen"];
+    lbIndex = Math.max(0, Math.min(startIndex || 0, lbImages.length - 1));
+    lbName = productName || "Vista previa";
 
-    function zoomBy(factor, centerClientX=null, centerClientY=null){
-      const prevScale = scale;
-      scale = clamp(scale * factor, minScale, maxScale);
+    lightbox.classList.add("show");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
 
-      if (centerClientX !== null && centerClientY !== null){
-        const rect = lightboxBody.getBoundingClientRect();
-        const cx = centerClientX - rect.left - rect.width / 2;
-        const cy = centerClientY - rect.top - rect.height / 2;
-        const k = (scale / prevScale) - 1;
-        tx -= cx * k;
-        ty -= cy * k;
+    renderLightbox();
+    resetTransform();
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove("show");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function renderLightbox(){
+    const src = lbImages[lbIndex];
+    lightboxImg.src = src;
+    lightboxTitle.textContent = lbName;
+    lightboxCounter.textContent = `${lbIndex + 1} / ${lbImages.length}`;
+
+    const showNav = lbImages.length > 1;
+    lightboxPrev.style.display = showNav ? "grid" : "none";
+    lightboxNext.style.display = showNav ? "grid" : "none";
+  }
+
+  function lbPrev(){
+    lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
+    renderLightbox();
+    resetTransform();
+  }
+  function lbNext(){
+    lbIndex = (lbIndex + 1) % lbImages.length;
+    renderLightbox();
+    resetTransform();
+  }
+
+  lightboxClose.addEventListener("click", closeLightbox);
+  lightboxPrev.addEventListener("click", lbPrev);
+  lightboxNext.addEventListener("click", lbNext);
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (!lightbox.classList.contains("show")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") lbPrev();
+    if (e.key === "ArrowRight") lbNext();
+    if (e.key === "+" || e.key === "=") zoomBy(1.12);
+    if (e.key === "-" || e.key === "_") zoomBy(1/1.12);
+    if (e.key.toLowerCase() === "r") resetTransform();
+  });
+
+  function zoomBy(factor, centerClientX=null, centerClientY=null){
+    const prevScale = scale;
+    scale = clamp(scale * factor, minScale, maxScale);
+
+    if (centerClientX !== null && centerClientY !== null){
+      const rect = lightboxBody.getBoundingClientRect();
+      const cx = centerClientX - rect.left - rect.width / 2;
+      const cy = centerClientY - rect.top - rect.height / 2;
+      const k = (scale / prevScale) - 1;
+      tx -= cx * k;
+      ty -= cy * k;
+    }
+
+    applyTransform();
+  }
+
+  zoomInBtn.addEventListener("click", () => zoomBy(1.15));
+  zoomOutBtn.addEventListener("click", () => zoomBy(1/1.15));
+  zoomResetBtn.addEventListener("click", resetTransform);
+
+  lightboxBody.addEventListener("wheel", (e) => {
+    if (!lightbox.classList.contains("show")) return;
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? (1/1.12) : 1.12;
+    zoomBy(factor, e.clientX, e.clientY);
+  }, { passive: false });
+
+  lightboxImg.addEventListener("mousedown", (e) => {
+    if (!lightbox.classList.contains("show")) return;
+    if (scale === 1) return;
+    e.preventDefault();
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startTx = tx;
+    startTy = ty;
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    tx = startTx + dx;
+    ty = startTy + dy;
+    applyTransform();
+  });
+
+  window.addEventListener("mouseup", () => { dragging = false; });
+
+  // =========================
+  // ✅ SWIPE MOBILE (solo touch)
+  // =========================
+  const isTouchDevice =
+    ("ontouchstart" in window) ||
+    (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+    (navigator.msMaxTouchPoints && navigator.msMaxTouchPoints > 0);
+
+  function addSwipeToCarousel(carousel, getImgs, onPrev, onNext){
+    if (!isTouchDevice) return;
+
+    let startX = 0, startY = 0;
+    let dx = 0, dy = 0;
+    let tracking = false;
+    let moved = false;
+
+    const THRESHOLD = 35;       // px para considerar swipe
+    const VERTICAL_LOCK = 18;   // px para permitir scroll vertical sin bloquear
+
+    const onTouchStart = (e) => {
+      if (!e.touches || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+      dx = 0; dy = 0;
+      tracking = true;
+      moved = false;
+    };
+
+    const onTouchMove = (e) => {
+      if (!tracking || !e.touches || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      dx = t.clientX - startX;
+      dy = t.clientY - startY;
+
+      // Si el usuario está scrolleando verticalmente, no intervenimos
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > VERTICAL_LOCK) {
+        tracking = false;
+        return;
       }
 
-      applyTransform();
-    }
+      // Si va horizontal, marcamos que hubo gesto (para evitar abrir lightbox)
+      if (Math.abs(dx) > 8) moved = true;
 
-    zoomInBtn.addEventListener("click", () => zoomBy(1.15));
-    zoomOutBtn.addEventListener("click", () => zoomBy(1/1.15));
-    zoomResetBtn.addEventListener("click", resetTransform);
+      // prevenimos "back/forward" del navegador en iOS/Android mientras swipea
+      if (Math.abs(dx) > Math.abs(dy)) {
+        e.preventDefault();
+      }
+    };
 
-    lightboxBody.addEventListener("wheel", (e) => {
-      if (!lightbox.classList.contains("show")) return;
-      e.preventDefault();
-      const factor = e.deltaY > 0 ? (1/1.12) : 1.12;
-      zoomBy(factor, e.clientX, e.clientY);
-    }, { passive: false });
+    const onTouchEnd = () => {
+      if (!tracking) return;
+      tracking = false;
 
-    lightboxImg.addEventListener("mousedown", (e) => {
-      if (!lightbox.classList.contains("show")) return;
-      if (scale === 1) return; // ✅ en 1x no arrastrar (para mantener centrado)
-      e.preventDefault();
-      dragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      startTx = tx;
-      startTy = ty;
-    });
+      if (Math.abs(dx) >= THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) onNext();
+        else onPrev();
+      }
+    };
 
-    window.addEventListener("mousemove", (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      tx = startTx + dx;
-      ty = startTy + dy;
-      applyTransform();
-    });
+    // guardamos bandera para que el click de imagen no abra el lightbox si fue swipe
+    carousel.__swipeMoved = () => moved;
 
-    window.addEventListener("mouseup", () => { dragging = false; });
+    carousel.addEventListener("touchstart", onTouchStart, { passive: true });
+    carousel.addEventListener("touchmove", onTouchMove, { passive: false });
+    carousel.addEventListener("touchend", onTouchEnd, { passive: true });
+    carousel.addEventListener("touchcancel", onTouchEnd, { passive: true });
+  }
 
-    // ===== Data load =====
-    fetch(JSON_URL)
-      .then(res => res.json())
-      .then(data => {
-        productos = data.map(p => {
-          const tallasDisponibles = parseTallasDisponibles(p.tallas);
-          return {
-            nombre: (p.nombre || "Sin nombre").trim(),
-            precio: formatPrice(p.precio || ""),
-            tallas: tallasDisponibles,
-            imagenes: (p.imagenes || "")
-              .split("|")
-              .map(x => x.trim())
-              .filter(x => x.length > 0)
-              .map(id => idToDriveImage(id)),
-          };
-        });
-
-        filtered = [...productos];
-        updateCount();
-        resetRender();
-        asegurarScroll();
-      })
-      .catch(err => console.error("Error cargando JSON:", err));
-
-    function updateCount(){
-      countChip.textContent = `${filtered.length} producto${filtered.length === 1 ? "" : "s"}`;
-    }
-
-    function resetRender(){
-      contenedor.innerHTML = "";
-      index = 0;
-      cargarMas();
-    }
-
-    function cargarMas() {
-      if (isLoading) return;
-      isLoading = true;
-
-      for (let i = 0; i < batchSize && index < filtered.length; i++, index++) {
-        const p = filtered[index];
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        const carousel = document.createElement("div");
-        carousel.className = "carousel";
-
-        const imgsToRender = p.imagenes.length
-          ? p.imagenes
-          : ["https://via.placeholder.com/800x600?text=Sin+imagen"];
-
-        imgsToRender.forEach((imgUrl, i) => {
-          const img = document.createElement("img");
-          img.src = imgUrl;
-          img.loading = "lazy";
-          img.alt = p.nombre;
-          if (i === 0) img.classList.add("active");
-
-          img.addEventListener("click", () => openLightbox(imgsToRender, i, p.nombre));
-          carousel.appendChild(img);
-        });
-
-        let current = 0;
-        const getImgs = () => carousel.querySelectorAll("img");
-
-        if (imgsToRender.length > 1) {
-          const prev = document.createElement("button");
-          prev.className = "prev";
-          prev.type = "button";
-          prev.textContent = "‹";
-          prev.onclick = () => {
-            const imgs = getImgs();
-            imgs[current].classList.remove("active");
-            current = (current - 1 + imgs.length) % imgs.length;
-            imgs[current].classList.add("active");
-          };
-
-          const next = document.createElement("button");
-          next.className = "next";
-          next.type = "button";
-          next.textContent = "›";
-          next.onclick = () => {
-            const imgs = getImgs();
-            imgs[current].classList.remove("active");
-            current = (current + 1) % imgs.length;
-            imgs[current].classList.add("active");
-          };
-
-          carousel.appendChild(prev);
-          carousel.appendChild(next);
-        }
-
-        card.appendChild(carousel);
-
-        const info = document.createElement("div");
-        info.className = "info";
-
-        const topline = document.createElement("div");
-        topline.className = "topline";
-
-        const h3 = document.createElement("h3");
-        h3.textContent = p.nombre;
-
-        const precio = document.createElement("div");
-        precio.className = "precio";
-        precio.textContent = p.precio;
-
-        topline.appendChild(h3);
-        topline.appendChild(precio);
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-
-        const t1 = document.createElement("span");
-        t1.className = "tag";
-        t1.textContent = "Gorras";
-
-        const t2 = document.createElement("span");
-        t2.className = "tag";
-        t2.textContent = "Nueva colección";
-
-        meta.appendChild(t1);
-        meta.appendChild(t2);
-
-        if (p.tallas && p.tallas.length) {
-          const sizesWrap = document.createElement("div");
-          sizesWrap.className = "sizes-wrap";
-
-          p.tallas.forEach(size => {
-            const el = document.createElement("span");
-            el.className = "tag tag-size";
-            el.innerHTML = formatHatSize(String(size).trim());
-            sizesWrap.appendChild(el);
-          });
-
-          meta.appendChild(sizesWrap);
-        } else {
-          const noSizes = document.createElement("span");
-          noSizes.className = "tag tag-muted";
-          noSizes.textContent = "Sin tallas disponibles";
-          meta.appendChild(noSizes);
-        }
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-
-        const buy = document.createElement("a");
-        buy.className = "btn btn-primary";
-        const tallasTxt = (p.tallas && p.tallas.length) ? p.tallas.join(", ") : "N/A";
-        buy.href = whatsappLink(`Hola! Quiero comprar esta gorra:\n\n• ${p.nombre}\n• Precio: ${p.precio || "N/A"}\n• Tallas disponibles: ${tallasTxt}\n\n¿Me confirmas disponibilidad y envío?`);
-        buy.target = "_blank";
-        buy.rel = "noopener";
-        buy.textContent = "Comprar por WhatsApp";
-
-        const share = document.createElement("button");
-        share.className = "btn btn-outline";
-        share.type = "button";
-        share.textContent = "Copiar info";
-        share.onclick = async () => {
-          const text = `${p.nombre} - ${p.precio || ""}${p.tallas?.length ? ` - Tallas: ${p.tallas.join(", ")}` : ""}`.trim();
-          try{
-            await navigator.clipboard.writeText(text);
-            share.textContent = "Copiado ✅";
-            setTimeout(()=> share.textContent = "Copiar info", 1200);
-          }catch(e){
-            alert("No se pudo copiar.");
-          }
+  // ===== Data load =====
+  fetch(JSON_URL)
+    .then(res => res.json())
+    .then(data => {
+      productos = data.map(p => {
+        const tallasDisponibles = parseTallasDisponibles(p.tallas);
+        return {
+          nombre: (p.nombre || "Sin nombre").trim(),
+          precio: formatPrice(p.precio || ""),
+          tallas: tallasDisponibles,
+          imagenes: (p.imagenes || "")
+            .split("|")
+            .map(x => x.trim())
+            .filter(x => x.length > 0)
+            .map(id => idToDriveImage(id)),
         };
+      });
 
-        actions.appendChild(buy);
-        actions.appendChild(share);
-
-        info.appendChild(topline);
-        info.appendChild(meta);
-        info.appendChild(actions);
-
-        card.appendChild(info);
-        contenedor.appendChild(card);
-      }
-
-      isLoading = false;
-      loadMoreBtn.style.display = (index >= filtered.length) ? "none" : "inline-flex";
-    }
-
-    function asegurarScroll() {
-      while (index < filtered.length && document.body.scrollHeight <= window.innerHeight) {
-        cargarMas();
-      }
-    }
-
-    window.addEventListener("scroll", () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        cargarMas();
-      }
-    });
-
-    loadMoreBtn.addEventListener("click", () => cargarMas());
-
-    function applySearch(){
-      const q = (searchInput.value || "").trim().toLowerCase();
-      filtered = q
-        ? productos.filter(p => (p.nombre || "").toLowerCase().includes(q))
-        : [...productos];
-
+      filtered = [...productos];
       updateCount();
       resetRender();
       asegurarScroll();
+    })
+    .catch(err => console.error("Error cargando JSON:", err));
+
+  function updateCount(){
+    countChip.textContent = `${filtered.length} producto${filtered.length === 1 ? "" : "s"}`;
+  }
+
+  function resetRender(){
+    contenedor.innerHTML = "";
+    index = 0;
+    cargarMas();
+  }
+
+  function cargarMas() {
+    if (isLoading) return;
+    isLoading = true;
+
+    for (let i = 0; i < batchSize && index < filtered.length; i++, index++) {
+      const p = filtered[index];
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const carousel = document.createElement("div");
+      carousel.className = "carousel";
+
+      const imgsToRender = p.imagenes.length
+        ? p.imagenes
+        : ["https://via.placeholder.com/800x600?text=Sin+imagen"];
+
+      let current = 0;
+      const getImgs = () => carousel.querySelectorAll("img");
+
+      function showAt(nextIndex){
+        const imgs = getImgs();
+        if (!imgs.length) return;
+        imgs[current].classList.remove("active");
+        current = (nextIndex + imgs.length) % imgs.length;
+        imgs[current].classList.add("active");
+      }
+      const onPrev = () => showAt(current - 1);
+      const onNext = () => showAt(current + 1);
+
+      imgsToRender.forEach((imgUrl, imgIndex) => {
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        img.loading = "lazy";
+        img.alt = p.nombre;
+        if (imgIndex === 0) img.classList.add("active");
+
+        // ✅ En móvil: si el usuario swypeó, NO abrir lightbox por ese toque
+        img.addEventListener("click", () => {
+          const wasSwipe = typeof carousel.__swipeMoved === "function" ? carousel.__swipeMoved() : false;
+          if (wasSwipe) return;
+          openLightbox(imgsToRender, imgIndex, p.nombre);
+        });
+
+        carousel.appendChild(img);
+      });
+
+      if (imgsToRender.length > 1) {
+        const prev = document.createElement("button");
+        prev.className = "prev";
+        prev.type = "button";
+        prev.textContent = "‹";
+        prev.onclick = onPrev;
+
+        const next = document.createElement("button");
+        next.className = "next";
+        next.type = "button";
+        next.textContent = "›";
+        next.onclick = onNext;
+
+        carousel.appendChild(prev);
+        carousel.appendChild(next);
+
+        // ✅ Activar swipe SOLO en touch
+        addSwipeToCarousel(carousel, getImgs, onPrev, onNext);
+      }
+
+      card.appendChild(carousel);
+
+      const info = document.createElement("div");
+      info.className = "info";
+
+      const topline = document.createElement("div");
+      topline.className = "topline";
+
+      const h3 = document.createElement("h3");
+      h3.textContent = p.nombre;
+
+      const precio = document.createElement("div");
+      precio.className = "precio";
+      precio.textContent = p.precio;
+
+      topline.appendChild(h3);
+      topline.appendChild(precio);
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+
+      const t1 = document.createElement("span");
+      t1.className = "tag";
+      t1.textContent = "Gorras";
+
+      const t2 = document.createElement("span");
+      t2.className = "tag";
+      t2.textContent = "Nueva colección";
+
+      meta.appendChild(t1);
+      meta.appendChild(t2);
+
+      if (p.tallas && p.tallas.length) {
+        const sizesWrap = document.createElement("div");
+        sizesWrap.className = "sizes-wrap";
+
+        p.tallas.forEach(size => {
+          const el = document.createElement("span");
+          el.className = "tag tag-size";
+          el.innerHTML = formatHatSize(String(size).trim());
+          sizesWrap.appendChild(el);
+        });
+
+        meta.appendChild(sizesWrap);
+      } else {
+        const noSizes = document.createElement("span");
+        noSizes.className = "tag tag-muted";
+        noSizes.textContent = "Sin tallas disponibles";
+        meta.appendChild(noSizes);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const buy = document.createElement("a");
+      buy.className = "btn btn-primary";
+      const tallasTxt = (p.tallas && p.tallas.length) ? p.tallas.join(", ") : "N/A";
+      buy.href = whatsappLink(`Hola! Quiero comprar esta gorra:\n\n• ${p.nombre}\n• Precio: ${p.precio || "N/A"}\n• Tallas disponibles: ${tallasTxt}\n\n¿Me confirmas disponibilidad y envío?`);
+      buy.target = "_blank";
+      buy.rel = "noopener";
+      buy.textContent = "Comprar por WhatsApp";
+
+      const share = document.createElement("button");
+      share.className = "btn btn-outline";
+      share.type = "button";
+      share.textContent = "Copiar info";
+      share.onclick = async () => {
+        const text = `${p.nombre} - ${p.precio || ""}${p.tallas?.length ? ` - Tallas: ${p.tallas.join(", ")}` : ""}`.trim();
+        try{
+          await navigator.clipboard.writeText(text);
+          share.textContent = "Copiado ✅";
+          setTimeout(()=> share.textContent = "Copiar info", 1200);
+        }catch(e){
+          alert("No se pudo copiar.");
+        }
+      };
+
+      actions.appendChild(buy);
+      actions.appendChild(share);
+
+      info.appendChild(topline);
+      info.appendChild(meta);
+      info.appendChild(actions);
+
+      card.appendChild(info);
+      contenedor.appendChild(card);
     }
 
-    let t = null;
-    searchInput.addEventListener("input", () => {
-      clearTimeout(t);
-      t = setTimeout(applySearch, 150);
-    });
-  </script>
+    isLoading = false;
+    loadMoreBtn.style.display = (index >= filtered.length) ? "none" : "inline-flex";
+  }
+
+  function asegurarScroll() {
+    while (index < filtered.length && document.body.scrollHeight <= window.innerHeight) {
+      cargarMas();
+    }
+  }
+
+  window.addEventListener("scroll", () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+      cargarMas();
+    }
+  });
+
+  loadMoreBtn.addEventListener("click", () => cargarMas());
+
+  function applySearch(){
+    const q = (searchInput.value || "").trim().toLowerCase();
+    filtered = q
+      ? productos.filter(p => (p.nombre || "").toLowerCase().includes(q))
+      : [...productos];
+
+    updateCount();
+    resetRender();
+    asegurarScroll();
+  }
+
+  let t = null;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(t);
+    t = setTimeout(applySearch, 150);
+  });
+</script>
 </body>
 </html>
